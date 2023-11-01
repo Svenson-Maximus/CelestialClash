@@ -2,6 +2,8 @@
 
 In a realm where the elemental forces dictate the rhythm of nature, players are drawn into an ever-intensifying conflict against waves of elemental adversaries. Embrace the power of the elements, evolve your bending techniques, and stand your ground against the celestial clash.
 
+**The game is still in active development!**
+
 ![Game Screenshot](path/to/screenshot.png)
 
 ## Features
