@@ -6,16 +6,14 @@ public class PlayerMovement : MonoBehaviour
 {
     [SerializeField]
     private float maximumSpeed;
-
+    [SerializeField]
+    private float sprintMultiplier; // Multiplier for speed when sprinting.
     [SerializeField]
     private float rotationSpeed;
-
     [SerializeField]
     private float jumpSpeed;
-
     [SerializeField]
     private float jumpButtonGracePeriod;
-
     [SerializeField]
     private Transform cameraTransform;
 
@@ -25,16 +23,18 @@ public class PlayerMovement : MonoBehaviour
     private float originalStepOffset;
     private float? lastGroundedTime;
     private float? jumpButtonPressedTime;
+    private bool isSprinting;
 
-    // Start is called before the first frame update
+    private PunchEffectHandler punchEffectHandler;
+
     void Start()
     {
         animator = GetComponent<Animator>();
         characterController = GetComponent<CharacterController>();
+        punchEffectHandler = GetComponent<PunchEffectHandler>();
         originalStepOffset = characterController.stepOffset;
     }
 
-    // Update is called once per frame
     void Update()
     {
         float horizontalInput = Input.GetAxis("Horizontal");
@@ -43,14 +43,21 @@ public class PlayerMovement : MonoBehaviour
         Vector3 movementDirection = new Vector3(horizontalInput, 0, verticalInput);
         float inputMagnitude = Mathf.Clamp01(movementDirection.magnitude);
 
-        if (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift))
+        // Check if the character is moving
+        bool isMoving = inputMagnitude > 0.01f;
+
+        // Check if the character is sprinting
+        isSprinting = isMoving && (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift));
+
+        // Apply the sprint multiplier to the input magnitude after determining the movement state
+        if (isSprinting)
         {
-            inputMagnitude /= 2;
+            inputMagnitude *= sprintMultiplier;
         }
 
-        // Set the animation parameter here based on input magnitude
-        bool isMoving = inputMagnitude > 0.01f; // Consider any movement greater than 1% as "moving"
+        // Pass the movement states to the animator
         animator.SetBool("isMoving", isMoving);
+        animator.SetBool("isSprinting", isSprinting);
 
         float speed = inputMagnitude * maximumSpeed;
         movementDirection = Quaternion.AngleAxis(cameraTransform.rotation.eulerAngles.y, Vector3.up) * movementDirection;
@@ -94,6 +101,18 @@ public class PlayerMovement : MonoBehaviour
         {
             Quaternion toRotation = Quaternion.LookRotation(movementDirection, Vector3.up);
             transform.rotation = Quaternion.RotateTowards(transform.rotation, toRotation, rotationSpeed * Time.deltaTime);
+        }
+
+        HandlePunch(); // Call to check for punch input
+    }
+
+    private void HandlePunch()
+    {
+        // Check if the left mouse button is pressed
+        if (Input.GetMouseButtonDown(0))
+        {
+            animator.SetTrigger("Punch");  // Assuming "Punch" is the name of the trigger in your animator
+            punchEffectHandler.HandlePunch();  // This will activate the flamethrower after the specified delay
         }
     }
 
