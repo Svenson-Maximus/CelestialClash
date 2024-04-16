@@ -4,7 +4,7 @@ In a realm where the elemental forces dictate the rhythm of nature, players are 
 
 **The game is still in development :D**
 
-![Game Screenshot](path/to/screenshot.png)
+![Game Screenshot](gameplay.gif)
 
 ## Goal Features
 
